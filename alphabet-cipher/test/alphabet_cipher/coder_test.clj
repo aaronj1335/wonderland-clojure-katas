@@ -15,3 +15,10 @@
            (decode "vigilance" "hmkbxebpxpmyllyrxiiqtoltfgzzv")))
     (is (= "meetmebythetree"
            (decode "scones" "egsgqwtahuiljgs")))))
+
+(deftest test-encode-decode
+  (testing "produces the same result when decoding an encoded message"
+    (is (= "themessage" (decode "thekey" (encode "thekey" "themessage"))))
+    (is (= "msg" (decode "thekey" (encode "thekey" "msg"))))
+    (is (= "" (decode "thekey" (encode "thekey" ""))))))
+
