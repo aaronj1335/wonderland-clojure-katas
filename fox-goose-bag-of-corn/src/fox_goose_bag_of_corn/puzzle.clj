@@ -1,163 +1,64 @@
 (ns fox-goose-bag-of-corn.puzzle
-  (:require [clojure.pprint :refer [pprint]]))
+  (:require [clojure.set :refer [union]]))
 
 (def start-pos [[:fox :goose :corn :you] [:boat] []])
 
-(def invalid-groups #{#{:fox :goose} #{:goose :corn}})
+(defn positions
+  "s/o to @ponzao http://stackoverflow.com/a/4831131/5377"
+  [pred coll]
+  (keep-indexed (fn [i x] (when (pred x) i)) coll))
 
-(defn its-cool-chill
+(defn its-cool
   "return true if given a position, nothing's gonna get eaten"
   [pos]
-  (not-any? invalid-groups (map set pos)))
-
-; (defn one-way-boat
-;   "return true if given a plan, you didn't get off the boat on the same shore
-;   you left. note this only checks the last position."
-;   [plan]
-;   (let [last-3-poss (take 3 (reverse plan))
-;         [prev prev2 prev3] (map #(first (positions :you %)) last-3-poss)]
-;     (or (not= prev2 1) (not= prev3 prev))))
+  (not-any? #{#{:fox :goose} #{:goose :corn} #{:fox :goose :corn}} pos))
 
 (defn progress
   "return true if you didn't just undo your last action
 
   this prevents doing something like bringing the goose to the far shore and
-  then right back to the near shore."
+  then right back to the near shore. or the fox for that matter."
   [plan]
   (let [[prev prev2 prev3] (take 3 (reverse plan))]
     (not= prev prev3)))
 
-(defn positions
-  "s/o to @ponzao http://stackoverflow.com/a/4831131/5377"
-  [pred coll]
-  (keep-indexed (fn [i x]
-                  (when (pred x)
-                    i))
-                coll))
-
-; (defn transitions
-;   "given a position, return the possible positions to which we can transition"
-;   [plan]
-
-;   (let [pos (last plan)
-;         prev-pos (second (reverse plan))
-
-;         your-idx (first (positions :you pos))
-;         prev-idx (when prev-pos (first (positions :you prev-pos)))
-
-;         ; "bringable" is all the items in your group that you can take (i.e.
-;         ; everything except you or the boat)
-;         bringable (disj (disj (nth pos your-idx) :you) :boat)]
-
-;     ; (print "in transitions\n")
-;     ; (pprint {:pos (last plan)
-;     ;          :prev-pos (second (reverse plan))
-
-;     ;          :your-idx (first (positions :you pos))
-;     ;          :prev-idx (when prev-pos (first (positions :you prev-pos)))
-
-;     ;          :bringable (disj (disj (nth pos your-idx) :you) :boat)
-;     ;          })
-
-;     (if (= your-idx 1)
-
-;       (if (= prev-idx 0)
-;         [[(nth pos 0) #{:boat} (conj (nth pos 2) :you (first bringable))]]
-;         [[(conj (nth pos 0) :you (first bringable)) #{:boat} (nth pos 2)]])
-
-;       (let [new-set (if (= your-idx 0)
-;                       (fn [bring]
-;                         [(disj bringable bring)
-;                          (conj #{:boat :you} bring)
-;                          (nth pos 2)])
-;                       (fn [bring]
-;                         [(nth pos 0)
-;                          (conj #{:boat :you} bring)
-;                          (disj bringable bring)]))]
-
-;         (map new-set bringable)))))
-
 (defn transitions
-  "given a position, return the possible positions to which we can transition"
+  "return all possible transitions from a given position including invalid ones"
   [pos]
-
-  (let [
-        ; pos (last plan)
-        ; prev-pos (second (reverse plan))
-
-        your-idx (first (positions :you pos))
-        ; prev-idx (when prev-pos (first (positions :you prev-pos)))
-
-        ; "bringable" is all the items in your location that you can take (i.e.
-        ; everything except you or the boat)
-        bringable (disj (disj (nth pos your-idx) :you) :boat)]
-
-    ; (print "in transitions\n")
-    ; (pprint {:pos (last plan)
-    ;          :prev-pos (second (reverse plan))
-
-    ;          :your-idx (first (positions :you pos))
-    ;          :prev-idx (when prev-pos (first (positions :you prev-pos)))
-
-    ;          :bringable (disj (disj (nth pos your-idx) :you) :boat)
-    ;          })
-
-    (if (= your-idx 1)
-
-      [[(conj (nth pos 0) :you (first bringable)) #{:boat} (nth pos 2)]
-       [(nth pos 0) #{:boat} (conj (nth pos 2) :you (first bringable))]]
-
-      (let [new-set (if (= your-idx 0)
-                      (fn [bring]
-                        [(disj bringable bring)
-                         (conj #{:boat :you} bring)
-                         (nth pos 2)])
-                      (fn [bring]
-                        [(nth pos 0)
-                         (conj #{:boat :you} bring)
-                         (disj bringable bring)]))]
-
-        (map new-set bringable)))))
+  (let [[west boat east] (map #(disj % :you) pos)
+        your-pos (nth [:west :boat :east] (first (positions :you pos)))]
+    (case your-pos
+      :boat [[(union west (conj boat :you)) #{} east]
+             [west                          #{} (union east (conj boat :you))]]
+      :west (conj (map #(-> [(disj west %) #{:you %} east]) west)
+                  [west #{:you} east])
+      :east (conj (map #(-> [west #{:you %} (disj east %)]) east)
+                  [west #{:you} east]))))
 
 (defn success [plan]
-  (= [#{} #{:boat} #{:you :fox :goose :corn}] (last plan)))
-
-; (pprint (transitions (map set start-pos)))
-; (pprint (transitions (map set [[:fox :corn]              [:boat :you :goose] []])))
+  (= [#{} #{} #{:you :fox :goose :corn}] (last plan)))
 
 (defn search [pos]
-  (let [
-        branch? (complement success)
-        ; branch? (fn [plan]
-        ;           ; (print "============================================================\n")
-        ;           ; (print "BRANCHING ON:\n")
-        ;           ; (pprint plan)
-        ;           ; (print "------------------------------------------------------------\n")
-        ;           (its-cool-chill (last plan)))
-
-        children (fn [plan]
-                   (when (not (success plan))
-                     (print "============================================================\n")
-                     (print "YIELDING CHILDREN FOR:\n")
-                     (pprint plan)
-                     (print "............................................................\n")
-                     (pprint (filter (every-pred #(its-cool-chill (last %))
-                                         progress)
-                             (map #(conj plan %) (transitions (last plan)))))
-                     (print "------------------------------------------------------------\n")
-                     (filter (every-pred #(its-cool-chill (last %))
-                                         progress)
-                             (map #(conj plan %) (transitions (last plan))))
-                     ))
-
-        ]
-    (tree-seq branch? children [pos])))
+  (let [next-plans (fn [plan]
+                     (let [pos (last plan)
+                           plans (map #(conj plan %) (transitions pos))
+                           is-valid (every-pred #(its-cool (last %))
+                                                progress)]
+                       (filter is-valid plans)))]
+    (tree-seq (constantly true) next-plans [pos])))
 
 (defn river-crossing-plan []
-  (first (filter (fn [plan]
-                   (print "============================================================\n")
-                   (print "GOT PLAN:\n")
-                   (pprint plan)
-                   (print "------------------------------------------------------------\n")
-                   (success plan)
-                   ) (search (map set start-pos)))))
+  ; since the boat is just kind of noise in the structure, we'll use utility
+  ; functions for removing it and adding it back in at the end
+  (let [remove-boat (fn [pos]
+                      (map #(disj (set %) :boat) pos))
+        add-boat (fn [plan]
+                   (map (fn [[west boat east]]
+                          [west (conj boat :boat) east])
+                        plan))]
+    (->> start-pos
+         (remove-boat)
+         (search)
+         (filter success)
+         (first)
+         (add-boat))))
