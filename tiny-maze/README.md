@@ -32,7 +32,7 @@ _:x_ in the start, the path, and the end of the maze, like this.
 
 ## Instructions
 
-- Clone of fork this repo
+- Clone or fork this repo
 - `cd tiny-maze`
 - Run the tests with `lein test`
 - Make the tests pass!
@@ -40,6 +40,8 @@ _:x_ in the start, the path, and the end of the maze, like this.
 ## Solutions
 
 Once you have your kata solution, you are welcome to submit a link to your repo to share here in this section with others.
+
+https://github.com/vincentjames501/wonderland-clojure-katas/tree/master/tiny-maze
 
 If you haven't solved your kata yet - Don't Peek!
 

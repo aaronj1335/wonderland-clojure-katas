@@ -70,7 +70,7 @@ To decode, the person would use the secret keyword and do the opposite.
 
 ## Instructions
 
-- Clone of fork this repo
+- Clone or fork this repo
 - `cd alphabet-cipher`
 - Run the tests with `lein test`
 - Make the tests pass!
@@ -81,6 +81,10 @@ Once you have your kata solution, you are welcome to submit a link to your repo 
 
 https://github.com/gensym/wonderland-clojure-katas/tree/alphabet-cipher-solution/alphabet-cipher
 https://github.com/aaronj1335/wonderland-clojure-katas/tree/master/alphabet-cipher
+https://github.com/mwfogleman/wonderland-clojure-katas/tree/alphabet/alphabet-cipher
+https://github.com/vincentjames501/wonderland-clojure-katas/tree/master/alphabet-cipher
+https://github.com/rbxbx/wonderland-clojure-katas/tree/master/alphabet-cipher/
+https://github.com/gnandretta/wonderland-clojure-katas/tree/master/alphabet-cipher
 
 If you haven't solved your kata yet - Don't Peek!
 

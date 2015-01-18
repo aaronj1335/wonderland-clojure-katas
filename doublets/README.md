@@ -52,14 +52,22 @@ breed
 bread
 ```
 
+
+
 ## Instructions
 
-- Clone of fork this repo
+- Clone or fork this repo
 - `cd doublets`
 - Run the tests with `lein test`
 - Make the tests pass!
 
 A sample dictionary has been included with a few words to get things going.  After you solve the kata, you might want to try a bigger dictionary to discover more exciting doublets.
+
+## Hints
+
+This kata is a bit tricky.  You might want to start off with a really small dictionary, (like just the word link solutions) and make it pass from there.
+
+Also don't be shy looking for other libraries or tools to help you.
 
 
 ## Solutions
@@ -68,6 +76,9 @@ Once you have your kata solution, you are welcome to submit a link to your repo 
 
 https://github.com/gensym/wonderland-clojure-katas/tree/doublets-solution/doublets
 https://github.com/mwfogleman/wonderland-clojure-katas/tree/doublets/doublets
+https://github.com/aaronj1335/wonderland-clojure-katas/tree/master/doublets
+https://github.com/paulhenrich/wonderland-clojure-katas/blob/solving/doublets/src/doublets/solver.clj
+https://github.com/vincentjames501/wonderland-clojure-katas/tree/master/doublets
 
 If you haven't solved your kata yet - Don't Peek!
 
